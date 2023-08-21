@@ -1,6 +1,7 @@
 extern crate aho_corasick;
 
 use aho_corasick::AhoCorasick;
+use libc::size_t;
 use std::ffi::CStr;
 
 #[no_mangle]
@@ -36,23 +37,19 @@ pub extern "C" fn search_automaton(
     automaton: *const AhoCorasick,
     text: *const std::os::raw::c_char,
     text_len: usize,
-    matches: *mut usize,
-) -> usize {
+    found_count: *mut size_t,
+) -> *mut size_t {
     let rust_text = unsafe { std::slice::from_raw_parts(text as *const u8, text_len) };
     let rust_text = String::from_utf8_lossy(rust_text).to_string();
-
     let automaton_ref = unsafe { &*automaton };
-    let result = automaton_ref
+    let mut result = automaton_ref
         .find_iter(&rust_text)
-        .map(|m| m.pattern().as_usize())
+        .map(|m| m.pattern().as_usize() as size_t)
         .collect::<Vec<_>>();
-    result.
-
-    for (i, match_index) in result.iter().enumerate() {
-        unsafe {
-            *matches.offset(i as isize) = match_index.as_usize();
-        }
+    unsafe {
+        *found_count = result.len();
     }
-
-    result.len()
+    let ptr = result.as_mut_ptr();
+    std::mem::forget(result);
+    ptr
 }

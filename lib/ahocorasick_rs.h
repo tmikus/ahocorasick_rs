@@ -7,6 +7,6 @@ typedef struct AhoCorasick AhoCorasick;
 
 AhoCorasick* create_automaton(const char** patterns, size_t num_patterns);
 void free_automaton(AhoCorasick* automaton);
-size_t search_automaton(const AhoCorasick* automaton, const char* text, size_t text_len, size_t* matches);
+int* search_automaton(const AhoCorasick* automaton, const char* text, size_t text_len, long* found_count);
 
 #endif

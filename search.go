@@ -33,15 +33,16 @@ func (ac *AhoCorasick) Search(text string) []int {
 	cText := C.CString(text)
 	defer C.free(unsafe.Pointer(cText))
 
-	maxMatches := 10000 // Adjust this based on your needs
-	matches := make([]C.size_t, maxMatches)
+	foundCount := C.long(0)
+	cMatches := C.search_automaton(ac.automaton, cText, C.size_t(len(text)), &foundCount)
+	goSlice := (*[1 << 30]C.size_t)(unsafe.Pointer(cMatches))[:foundCount:foundCount]
 
-	numMatches := C.search_automaton(ac.automaton, cText, C.size_t(len(text)), (*C.size_t)(&matches[0]))
-
-	result := make([]int, numMatches)
-	for i := 0; i < int(numMatches); i++ {
-		result[i] = int(matches[i])
+	result := make([]int, int(foundCount))
+	for i, val := range goSlice {
+		result[i] = int(val)
 	}
+
+	C.free(unsafe.Pointer(cMatches))
 
 	return result
 }
