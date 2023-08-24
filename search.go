@@ -15,6 +15,12 @@ import (
 	"unsafe"
 )
 
+type Match struct {
+	End          uint
+	PatternIndex uint
+	Start        uint
+}
+
 type AhoCorasick struct {
 	automaton *C.AhoCorasick
 }
@@ -33,17 +39,21 @@ func NewAhoCorasick(patterns []string) *AhoCorasick {
 	}
 }
 
-func (ac *AhoCorasick) Search(text string) []int {
+func (ac *AhoCorasick) Search(text string) []Match {
 	cText := C.CString(text)
 	defer C.free(unsafe.Pointer(cText))
 
 	foundCount := C.long(0)
-	cMatches := C.search_automaton(ac.automaton, cText, C.size_t(len(text)), &foundCount)
-	goSlice := (*[1 << 30]C.size_t)(unsafe.Pointer(cMatches))[:foundCount:foundCount]
+	cMatches := C.find_iter(ac.automaton, cText, C.size_t(len(text)), &foundCount)
+	goSlice := (*[1 << 30]C.AhoCorasickMatch)(unsafe.Pointer(cMatches))[:foundCount:foundCount]
 
-	result := make([]int, int(foundCount))
+	result := make([]Match, int(foundCount))
 	for i, val := range goSlice {
-		result[i] = int(val)
+		result[i] = Match{
+			End:          uint(val.end),
+			PatternIndex: uint(val.pattern_index),
+			Start:        uint(val.start),
+		}
 	}
 
 	C.free(unsafe.Pointer(cMatches))
@@ -63,5 +73,5 @@ func main() {
 	matches := aho.Search(text)
 	defer aho.Close()
 
-	fmt.Printf("Found matches at indexes: %v\n", matches)
+	fmt.Printf("Found matches: %v\n", matches)
 }
