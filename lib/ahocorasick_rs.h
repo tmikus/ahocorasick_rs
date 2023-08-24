@@ -16,6 +16,12 @@ AhoCorasick* create_automaton(
     size_t num_patterns
 );
 
+AhoCorasickMatch* find(
+    const AhoCorasick* automaton,
+    const char* text,
+    size_t text_len
+);
+
 AhoCorasickMatch* find_iter(
     const AhoCorasick* automaton,
     const char* text,

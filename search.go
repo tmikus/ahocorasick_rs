@@ -39,6 +39,21 @@ func NewAhoCorasick(patterns []string) *AhoCorasick {
 	}
 }
 
+func (ac *AhoCorasick) FindFirst(text string) *Match {
+	cText := C.CString(text)
+	defer C.free(unsafe.Pointer(cText))
+	match := C.find(ac.automaton, cText, C.size_t(len(text)))
+	if match == nil {
+		return nil
+	}
+	defer C.free(unsafe.Pointer(match))
+	return &Match{
+		End:          uint(match.end),
+		PatternIndex: uint(match.pattern_index),
+		Start:        uint(match.start),
+	}
+}
+
 func (ac *AhoCorasick) Search(text string) []Match {
 	cText := C.CString(text)
 	defer C.free(unsafe.Pointer(cText))
@@ -70,6 +85,13 @@ func main() {
 	text := "foobarbaz"
 
 	aho := NewAhoCorasick(patterns)
+	match := aho.FindFirst(text)
+	if match != nil {
+		fmt.Printf("Found match: %v\n", match)
+	} else {
+		fmt.Println("No match found")
+	}
+
 	matches := aho.Search(text)
 	defer aho.Close()
 
