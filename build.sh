@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
-(cd lib/ahocorasick_rs && cargo build --release)
-cp lib/ahocorasick_rs/target/release/libahocorasick_rs.so lib/
-go run -ldflags="-r $(pwd)/lib" search.go
+docker build -t ahocorasick-rs-builder .
+
+docker run -it --rm -v "$(pwd)":/app/src ahocorasick-rs-builder
+
+go build -ldflags="-r $(pwd)/lib" search.go

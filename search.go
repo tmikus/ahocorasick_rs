@@ -1,7 +1,11 @@
 package main
 
 /*
-#cgo LDFLAGS: -L./lib -lahocorasick_rs
+#cgo darwin,arm64 LDFLAGS: -L./lib/darwin -lahocorasick_rs_arm64
+#cgo darwin,amd64 LDFLAGS: -L./lib/darwin -lahocorasick_rs_amd64
+#cgo linux,arm64 LDFLAGS: -L./lib/linux -lahocorasick_rs_arm64
+#cgo linux,amd64 LDFLAGS: -L./lib/linux -lahocorasick_rs_amd64
+#cgo windows,amd64 LDFLAGS: -L./lib/windows -lahocorasick_rs_amd64
 #include "./lib/ahocorasick_rs.h"
 #include <stdlib.h>
 */
