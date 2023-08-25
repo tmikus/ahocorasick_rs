@@ -1,4 +1,4 @@
-package main
+package ahocorasick
 
 import (
 	_ "embed"

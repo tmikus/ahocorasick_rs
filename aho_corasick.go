@@ -1,4 +1,4 @@
-package main
+package ahocorasick
 
 /*
 #cgo darwin,arm64 LDFLAGS: -L./lib/darwin -lahocorasick_rs_arm64
@@ -11,7 +11,6 @@ package main
 */
 import "C"
 import (
-	"fmt"
 	"unsafe"
 )
 
@@ -85,22 +84,4 @@ func (ac *AhoCorasick) Search(text string) []Match {
 
 func (ac *AhoCorasick) Close() {
 	C.free_automaton(ac.automaton)
-}
-
-func main() {
-	patterns := []string{"foo", "bar", "baz"}
-	text := "foobarbaz"
-
-	aho := NewAhoCorasick(patterns)
-	match := aho.FindFirst(text)
-	if match != nil {
-		fmt.Printf("Found match: %v\n", match)
-	} else {
-		fmt.Println("No match found")
-	}
-
-	matches := aho.Search(text)
-	defer aho.Close()
-
-	fmt.Printf("Found matches: %v\n", matches)
 }
