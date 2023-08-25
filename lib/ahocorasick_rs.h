@@ -31,4 +31,10 @@ AhoCorasickMatch* find_iter(
 
 void free_automaton(AhoCorasick* automaton);
 
+int is_match(
+    const AhoCorasick* automaton,
+    const char* text,
+    size_t text_len
+);
+
 #endif

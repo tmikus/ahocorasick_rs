@@ -54,6 +54,13 @@ func (ac *AhoCorasick) FindFirst(text string) *Match {
 	}
 }
 
+func (ac *AhoCorasick) IsMatch(text string) bool {
+	cText := C.CString(text)
+	defer C.free(unsafe.Pointer(cText))
+	isMatch := C.is_match(ac.automaton, cText, C.size_t(len(text)))
+	return int(isMatch) != 0
+}
+
 func (ac *AhoCorasick) Search(text string) []Match {
 	cText := C.CString(text)
 	defer C.free(unsafe.Pointer(cText))

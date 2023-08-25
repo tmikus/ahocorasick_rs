@@ -91,3 +91,14 @@ pub extern "C" fn find_iter(
     std::mem::forget(result);
     ptr
 }
+
+#[no_mangle]
+pub extern "C" fn is_match(
+    automaton: *const AhoCorasick,
+    text: *const std::os::raw::c_char,
+    text_len: usize,
+) -> bool {
+    let rust_text = text_from_c(text, text_len);
+    let automaton_ref = unsafe { &*automaton };
+    automaton_ref.is_match(&rust_text)
+}
