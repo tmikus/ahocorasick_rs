@@ -3,13 +3,29 @@
 
 #include <stddef.h>
 
+typedef struct AhoCorasick AhoCorasick;
+
+typedef struct AhoCorasickBuilderOptions {
+    int ascii_case_insensitive;
+    int byte_classes;
+    size_t* dense_depth;
+    size_t* kind;
+    size_t match_kind;
+    int prefilter;
+    size_t start_kind;
+} AhoCorasickBuilderOptions;
+
 typedef struct AhoCorasickMatch {
     size_t end;
     size_t pattern_index;
     size_t start;
 } AhoCorasickMatch;
 
-typedef struct AhoCorasick AhoCorasick;
+AhoCorasick* build_automaton(
+    const char** patterns,
+    size_t num_patterns,
+    const AhoCorasickBuilderOptions* builder
+);
 
 AhoCorasick* create_automaton(
     const char** patterns,

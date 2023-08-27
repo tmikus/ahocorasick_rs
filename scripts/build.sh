@@ -14,4 +14,4 @@ docker run \
   -u $(id -u):$(id -g) \
   ahocorasick-rs-builder
 
-(cd "$SRC_DIR" && go build -ldflags="-r $SRC_DIR/lib" .)
+(cd "$SRC_DIR" && go build .)
