@@ -2,9 +2,9 @@ module github.com/tmikus/ahocorasick_rs
 
 go 1.21.0
 
-require github.com/BobuSumisu/aho-corasick v1.0.3
-
 require (
+	github.com/cloudflare/ahocorasick v0.0.0-20210425175752-730270c3e184 // indirect
+	github.com/BobuSumisu/aho-corasick v1.0.3 // indirect
 	github.com/gopherjs/gopherjs v1.17.2 // indirect
 	github.com/jtolds/gls v4.20.0+incompatible // indirect
 	github.com/smarty/assertions v1.15.0 // indirect

@@ -7,7 +7,8 @@ import (
 	"github.com/tmikus/ahocorasick_rs/matchkind"
 	"testing"
 
-	ac "github.com/BobuSumisu/aho-corasick"
+	bs "github.com/BobuSumisu/aho-corasick"
+	cf "github.com/cloudflare/ahocorasick"
 )
 
 func ExampleAhoCorasick_FindAll_basic() {
@@ -110,8 +111,17 @@ var patterns = []string{
 	"ſhe",
 }
 
-func BenchmarkAhoCorasickGo(b *testing.B) {
-	trie := ac.NewTrieBuilder().AddStrings(patterns).Build()
+func BenchmarkAhoCorasickGoCloudflare(b *testing.B) {
+	trie := cf.NewStringMatcher(patterns)
+	data := []byte(SHERLOCK)
+
+	for n := 0; n < b.N; n++ {
+		trie.Match(data)
+	}
+}
+
+func BenchmarkAhoCorasickGoBobuSumisu(b *testing.B) {
+	trie := bs.NewTrieBuilder().AddStrings(patterns).Build()
 
 	for n := 0; n < b.N; n++ {
 		trie.MatchString(SHERLOCK)
