@@ -3,6 +3,7 @@ package ahocorasick
 import (
 	"fmt"
 	. "github.com/smartystreets/goconvey/convey"
+	"github.com/tmikus/ahocorasick_rs/matchkind"
 	"testing"
 )
 
@@ -10,6 +11,30 @@ func ExampleAhoCorasickBuilder_SetAsciiCaseInsensitive() {
 	automaton := NewAhoCorasickBuilder().SetAsciiCaseInsensitive(true).Build([]string{"FOO", "bAr", "BaZ"})
 	fmt.Println(len(automaton.Search("foo bar baz")))
 	// Output: 3
+}
+
+func ExampleAhoCorasickBuilder_SetMatchKind_standard_semantics() {
+	haystack := "abcd"
+	automaton := NewAhoCorasickBuilder().SetMatchKind(matchkind.Standard).Build([]string{"b", "abc", "abcd"})
+	match := automaton.FindFirst(haystack)
+	fmt.Println(haystack[match.Start:match.End])
+	// Output: b
+}
+
+func ExampleAhoCorasickBuilder_SetMatchKind_leftmost_first() {
+	haystack := "abcd"
+	automaton := NewAhoCorasickBuilder().SetMatchKind(matchkind.LeftMostFirst).Build([]string{"b", "abc", "abcd"})
+	match := automaton.FindFirst(haystack)
+	fmt.Println(haystack[match.Start:match.End])
+	// Output: abc
+}
+
+func ExampleAhoCorasickBuilder_SetMatchKind_leftmost_longest() {
+	haystack := "abcd"
+	automaton := NewAhoCorasickBuilder().SetMatchKind(matchkind.LeftMostLongest).Build([]string{"b", "abc", "abcd"})
+	match := automaton.FindFirst(haystack)
+	fmt.Println(haystack[match.Start:match.End])
+	// Output: abcd
 }
 
 func TestNewAhoCorasickBuilder(t *testing.T) {
