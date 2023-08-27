@@ -4,7 +4,6 @@ use aho_corasick::{AhoCorasick, Match};
 use libc::size_t;
 use std::ffi::CStr;
 
-#[no_mangle]
 pub struct AhoCorasickMatch {
     end: size_t,
     pattern_index: size_t,
@@ -21,9 +20,8 @@ fn aho_corasick_match_from_match(m: Match) -> AhoCorasickMatch {
 }
 
 #[inline]
-fn text_from_c(text: *const std::os::raw::c_char, text_len: usize) -> String {
-    let rust_text = unsafe { std::slice::from_raw_parts(text as *const u8, text_len) };
-    String::from_utf8_lossy(rust_text).to_string()
+fn text_from_c(text: *const std::os::raw::c_char, text_len: usize) -> &'static [u8] {
+    unsafe { std::slice::from_raw_parts(text as *const u8, text_len) }
 }
 
 #[no_mangle]
