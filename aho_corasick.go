@@ -11,20 +11,20 @@ package ahocorasick
 */
 import "C"
 import (
-    "github.com/tmikus/ahocorasick_rs/ahocorasickkind"
-    "unsafe"
+	"github.com/tmikus/ahocorasick_rs/ahocorasickkind"
+	"unsafe"
 )
 
 // Match represents a match found by an [AhoCorasick] automaton.
 type Match struct {
-    // The ending position of the match.
-    End uint
-    // Returns the ID of the pattern that matched.
-    //
-    // The ID of a pattern is derived from the position in which it was originally inserted into the corresponding searcher. The first pattern has identifier 0, and each subsequent pattern is 1, 2 and so on.
-    PatternIndex uint
-    // The starting position of the match.
-    Start uint
+	// The ending position of the match.
+	End uint
+	// Returns the ID of the pattern that matched.
+	//
+	// The ID of a pattern is derived from the position in which it was originally inserted into the corresponding searcher. The first pattern has identifier 0, and each subsequent pattern is 1, 2 and so on.
+	PatternIndex uint
+	// The starting position of the match.
+	Start uint
 }
 
 // AhoCorasick is an automaton for searching multiple strings in linear time.
@@ -36,7 +36,7 @@ type Match struct {
 //
 // Make sure to call [AhoCorasick.Close] when you are done with the automaton.
 type AhoCorasick struct {
-    automaton *C.AhoCorasick
+	automaton *C.AhoCorasick
 }
 
 // NewAhoCorasick creates a new Aho-Corasick automaton using the default configuration.
@@ -49,22 +49,22 @@ type AhoCorasick struct {
 //
 // Make sure to call [AhoCorasick.Close] when you are done with the automaton.
 func NewAhoCorasick(patterns []string) *AhoCorasick {
-    cPatterns := make([]*C.char, len(patterns))
-    for i, pattern := range patterns {
-        cPatterns[i] = C.CString(pattern)
-        defer C.free(unsafe.Pointer(cPatterns[i]))
-    }
+	cPatterns := make([]*C.char, len(patterns))
+	for i, pattern := range patterns {
+		cPatterns[i] = C.CString(pattern)
+		defer C.free(unsafe.Pointer(cPatterns[i]))
+	}
 
-    automaton := C.create_automaton((**C.char)(&cPatterns[0]), C.size_t(len(patterns)))
+	automaton := C.create_automaton((**C.char)(&cPatterns[0]), C.size_t(len(patterns)))
 
-    return &AhoCorasick{
-        automaton: automaton,
-    }
+	return &AhoCorasick{
+		automaton: automaton,
+	}
 }
 
 // Close frees the memory associated with this automaton.
 func (ac *AhoCorasick) Close() {
-    C.free_automaton(ac.automaton)
+	C.free_automaton(ac.automaton)
 }
 
 // FindAll returns an iterator of non-overlapping matches, using the match semantics that this automaton was constructed with.
@@ -73,23 +73,23 @@ func (ac *AhoCorasick) Close() {
 //
 // This is the infallible version of [AhoCorasick.TryFindIter].
 func (ac *AhoCorasick) FindAll(input string) []Match {
-    cText := C.CString(input)
-    defer C.free(unsafe.Pointer(cText))
-    foundCount := C.long(0)
-    cMatches := C.find_iter(ac.automaton, cText, C.size_t(len(input)), &foundCount)
-    result := make([]Match, int(foundCount))
-    if foundCount > 0 {
-        goSlice := (*[1 << 30]C.AhoCorasickMatch)(unsafe.Pointer(cMatches))[:foundCount:foundCount]
-        for i, val := range goSlice {
-            result[i] = Match{
-                End:          uint(val.end),
-                PatternIndex: uint(val.pattern_index),
-                Start:        uint(val.start),
-            }
-        }
-        C.free(unsafe.Pointer(cMatches))
-    }
-    return result
+	cText := C.CString(input)
+	defer C.free(unsafe.Pointer(cText))
+	foundCount := C.long(0)
+	cMatches := C.find_iter(ac.automaton, cText, C.size_t(len(input)), &foundCount)
+	result := make([]Match, int(foundCount))
+	if foundCount > 0 {
+		goSlice := (*[1 << 30]C.AhoCorasickMatch)(unsafe.Pointer(cMatches))[:foundCount:foundCount]
+		for i, val := range goSlice {
+			result[i] = Match{
+				End:          uint(val.end),
+				PatternIndex: uint(val.pattern_index),
+				Start:        uint(val.start),
+			}
+		}
+		C.free(unsafe.Pointer(cMatches))
+	}
+	return result
 }
 
 // FindFirst returns the location of the first match according to the match semantics that this automaton was constructed with.
@@ -98,18 +98,18 @@ func (ac *AhoCorasick) FindAll(input string) []Match {
 //
 // This is the infallible version of [AhoCorasick.TryFind].
 func (ac *AhoCorasick) FindFirst(input string) *Match {
-    cText := C.CString(input)
-    defer C.free(unsafe.Pointer(cText))
-    match := C.find(ac.automaton, cText, C.size_t(len(input)))
-    if match == nil {
-        return nil
-    }
-    defer C.free(unsafe.Pointer(match))
-    return &Match{
-        End:          uint(match.end),
-        PatternIndex: uint(match.pattern_index),
-        Start:        uint(match.start),
-    }
+	cText := C.CString(input)
+	defer C.free(unsafe.Pointer(cText))
+	match := C.find(ac.automaton, cText, C.size_t(len(input)))
+	if match == nil {
+		return nil
+	}
+	defer C.free(unsafe.Pointer(match))
+	return &Match{
+		End:          uint(match.end),
+		PatternIndex: uint(match.pattern_index),
+		Start:        uint(match.start),
+	}
 }
 
 // GetKind returns the kind of the [AhoCorasick] automaton used by this searcher.
@@ -119,8 +119,8 @@ func (ac *AhoCorasick) FindFirst(input string) *Match {
 //
 // Note that the heuristics used for choosing which [ahocorasickkind.AhoCorasickKind] may be changed in a semver compatible release.
 func (ac *AhoCorasick) GetKind() ahocorasickkind.AhoCorasickKind {
-    kind := C.get_kind(ac.automaton)
-    return ahocorasickkind.AhoCorasickKind(kind)
+	kind := C.get_kind(ac.automaton)
+	return ahocorasickkind.AhoCorasickKind(kind)
 }
 
 // IsMatch returns true if and only if this automaton matches the haystack at any position.
@@ -134,8 +134,8 @@ func (ac *AhoCorasick) GetKind() ahocorasickkind.AhoCorasickKind {
 // Note that there is no corresponding fallible routine for this method. If you need a fallible version of this,
 // then [AhoCorasick.TryFind] can be used with Input::earliest enabled.
 func (ac *AhoCorasick) IsMatch(text string) bool {
-    cText := C.CString(text)
-    defer C.free(unsafe.Pointer(cText))
-    isMatch := C.is_match(ac.automaton, cText, C.size_t(len(text)))
-    return int(isMatch) != 0
+	cText := C.CString(text)
+	defer C.free(unsafe.Pointer(cText))
+	isMatch := C.is_match(ac.automaton, cText, C.size_t(len(text)))
+	return int(isMatch) != 0
 }
