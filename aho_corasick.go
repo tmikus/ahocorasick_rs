@@ -16,9 +16,14 @@ import (
 
 // Match represents a match found by an [AhoCorasick] automaton.
 type Match struct {
-	End          uint
+	// The ending position of the match.
+	End uint
+	// Returns the ID of the pattern that matched.
+	//
+	// The ID of a pattern is derived from the position in which it was originally inserted into the corresponding searcher. The first pattern has identifier 0, and each subsequent pattern is 1, 2 and so on.
 	PatternIndex uint
-	Start        uint
+	// The starting position of the match.
+	Start uint
 }
 
 // AhoCorasick is an automaton for searching multiple strings in linear time.
