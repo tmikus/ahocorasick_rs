@@ -34,6 +34,6 @@ func BenchmarkAhoCorasickRs(b *testing.B) {
 	defer automaton.Close()
 
 	for n := 0; n < b.N; n++ {
-		automaton.Search(SHERLOCK)
+		automaton.FindAll(SHERLOCK)
 	}
 }
