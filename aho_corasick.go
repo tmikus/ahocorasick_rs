@@ -63,22 +63,20 @@ func (ac *AhoCorasick) IsMatch(text string) bool {
 func (ac *AhoCorasick) Search(text string) []Match {
 	cText := C.CString(text)
 	defer C.free(unsafe.Pointer(cText))
-
 	foundCount := C.long(0)
 	cMatches := C.find_iter(ac.automaton, cText, C.size_t(len(text)), &foundCount)
-	goSlice := (*[1 << 30]C.AhoCorasickMatch)(unsafe.Pointer(cMatches))[:foundCount:foundCount]
-
 	result := make([]Match, int(foundCount))
-	for i, val := range goSlice {
-		result[i] = Match{
-			End:          uint(val.end),
-			PatternIndex: uint(val.pattern_index),
-			Start:        uint(val.start),
+	if foundCount > 0 {
+		goSlice := (*[1 << 30]C.AhoCorasickMatch)(unsafe.Pointer(cMatches))[:foundCount:foundCount]
+		for i, val := range goSlice {
+			result[i] = Match{
+				End:          uint(val.end),
+				PatternIndex: uint(val.pattern_index),
+				Start:        uint(val.start),
+			}
 		}
+		C.free(unsafe.Pointer(cMatches))
 	}
-
-	C.free(unsafe.Pointer(cMatches))
-
 	return result
 }
 

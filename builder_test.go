@@ -1,9 +1,16 @@
 package ahocorasick
 
 import (
+	"fmt"
 	. "github.com/smartystreets/goconvey/convey"
 	"testing"
 )
+
+func ExampleAhoCorasickBuilder_SetAsciiCaseInsensitive() {
+	automaton := NewAhoCorasickBuilder().SetAsciiCaseInsensitive(true).Build([]string{"FOO", "bAr", "BaZ"})
+	fmt.Println(len(automaton.Search("foo bar baz")))
+	// Output: 3
+}
 
 func TestNewAhoCorasickBuilder(t *testing.T) {
 	Convey("Given a new AhoCorasickBuilder", t, func() {

@@ -27,6 +27,9 @@ type AhoCorasickBuilder struct {
 	startKind            startkind.StartKind
 }
 
+// NewAhoCorasickBuilder creates a new builder for configuring an Aho-Corasick automaton.
+//
+// The builder provides a way to configure a number of things, including ASCII case insensitivity and what kind of match semantics are used.
 func NewAhoCorasickBuilder() *AhoCorasickBuilder {
 	return &AhoCorasickBuilder{
 		asciiCaseInsensitive: false,
@@ -39,6 +42,15 @@ func NewAhoCorasickBuilder() *AhoCorasickBuilder {
 	}
 }
 
+// Build creates an Aho-Corasick automaton using the configuration set on this builder.
+//
+// A builder may be reused to create more automatons.
+//
+// # Examples
+//
+// Basic usage:
+//
+//	automaton := NewAhoCorasickBuilder().Build([]string{"foo", "bar", "baz"})
 func (b *AhoCorasickBuilder) Build(patterns []string) *AhoCorasick {
 	cPatterns := make([]*C.char, len(patterns))
 	for i, pattern := range patterns {
@@ -46,12 +58,12 @@ func (b *AhoCorasickBuilder) Build(patterns []string) *AhoCorasick {
 		defer C.free(unsafe.Pointer(cPatterns[i]))
 	}
 	options := C.AhoCorasickBuilderOptions{
-		ascii_case_insensitive: bool_to_c_int(b.asciiCaseInsensitive),
-		byte_classes:           bool_to_c_int(b.byteClasses),
+		ascii_case_insensitive: boolToCInt(b.asciiCaseInsensitive),
+		byte_classes:           boolToCInt(b.byteClasses),
 		dense_depth:            (*C.size_t)(unsafe.Pointer(b.denseDepth)),
 		kind:                   (*C.size_t)(unsafe.Pointer(b.kind)),
 		match_kind:             C.size_t(b.matchKind),
-		prefilter:              bool_to_c_int(b.prefilter),
+		prefilter:              boolToCInt(b.prefilter),
 		start_kind:             C.size_t(b.startKind),
 	}
 	automaton := C.build_automaton(
@@ -64,6 +76,11 @@ func (b *AhoCorasickBuilder) Build(patterns []string) *AhoCorasick {
 	}
 }
 
+// SetAsciiCaseInsensitive enables ASCII-aware case-insensitive matching.
+//
+// When this option is enabled, searching will be performed without respect to case for ASCII letters (a-z and A-Z) only.
+//
+// Enabling this option does not change the search algorithm, but it may increase the size of the automaton.
 func (b *AhoCorasickBuilder) SetAsciiCaseInsensitive(asciiCaseInsensitive bool) *AhoCorasickBuilder {
 	b.asciiCaseInsensitive = asciiCaseInsensitive
 	return b
@@ -99,7 +116,7 @@ func (b *AhoCorasickBuilder) SetStartKind(startKind startkind.StartKind) *AhoCor
 	return b
 }
 
-func bool_to_c_int(b bool) C.int {
+func boolToCInt(b bool) C.int {
 	if b {
 		return 1
 	}
