@@ -56,6 +56,11 @@ func NewAhoCorasick(patterns []string) *AhoCorasick {
 	}
 }
 
+// Close frees the memory associated with this automaton.
+func (ac *AhoCorasick) Close() {
+	C.free_automaton(ac.automaton)
+}
+
 // FindAll returns an iterator of non-overlapping matches, using the match semantics that this automaton was constructed with.
 //
 // input may be any type that is cheaply convertible to an Input. This includes, but is not limited to, &str and &[u8].
@@ -116,9 +121,4 @@ func (ac *AhoCorasick) IsMatch(text string) bool {
 	defer C.free(unsafe.Pointer(cText))
 	isMatch := C.is_match(ac.automaton, cText, C.size_t(len(text)))
 	return int(isMatch) != 0
-}
-
-// Close frees the memory associated with this automaton.
-func (ac *AhoCorasick) Close() {
-	C.free_automaton(ac.automaton)
 }
