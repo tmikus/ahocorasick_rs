@@ -90,10 +90,6 @@ pub extern "C" fn build_automaton(
     let rust_patterns = patterns_from_c(patterns, num_patterns);
     let rust_options = unsafe { &*options };
     let mut builder = AhoCorasick::builder();
-    println!(
-        "ascii_case_insensitive: {}",
-        rust_options.ascii_case_insensitive
-    );
     builder.ascii_case_insensitive(rust_options.ascii_case_insensitive != 0);
     builder.byte_classes(rust_options.byte_classes != 0);
     if !rust_options.dense_depth.is_null() {
