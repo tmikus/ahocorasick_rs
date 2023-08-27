@@ -2,8 +2,9 @@
 
 A Go wrapper for the Rust library [aho-corasick](https://github.com/BurntSushi/aho-corasick).
 
-A library for finding occurrences of many patterns at once with SIMD acceleration in some cases. 
-This library provides multiple pattern search principally through an implementation of the [Aho-Corasick algorithm](https://en.wikipedia.org/wiki/Aho%E2%80%93Corasick_algorithm),
+A library for finding occurrences of many patterns at once with SIMD acceleration in some cases.
+This library provides multiple pattern search principally through an implementation of
+the [Aho-Corasick algorithm](https://en.wikipedia.org/wiki/Aho%E2%80%93Corasick_algorithm),
 which builds a finite state machine for executing searches in linear time. Features include case insensitive matching,
 overlapping matches, fast searching via SIMD and optional full DFA construction and search & replace in streams.
 
@@ -21,7 +22,7 @@ go get github.com/tmikus/ahocorasick_rs
 
 ## Example: basic searching
 
-This example shows how to search for occurrences of multiple patterns simultaneously. Each match includes the pattern 
+This example shows how to search for occurrences of multiple patterns simultaneously. Each match includes the pattern
 that matched along with the byte offsets of the match.
 
 ```go
@@ -34,17 +35,18 @@ import (
 
 func main() {
     patterns := []string{"apple", "maple", "Snapple"}
-	haystack := "Nobody likes maple in their apple flavored Snapple."
-	ac := ahocorasick_rs.NewAhoCorasick(patterns)
-	defer ac.Close() // Close the AhoCorasick instance when done.
-	for _, match := range ac.FindAll(haystack) {
+    haystack := "Nobody likes maple in their apple flavored Snapple."
+    ac := ahocorasick_rs.NewAhoCorasick(patterns)
+    defer ac.Close() // Close the AhoCorasick instance when done.
+    for _, match := range ac.FindAll(haystack) {
         fmt.Println(match.PatternIndex, match.Start, match.End)
-    } 
+    }
     // Output: 
     // 1, 13, 18 
     // 0, 28, 33 
     // 2, 43, 50
 }
+
 ```
 
 ## Example: ASCII case insensitivity
@@ -55,22 +57,22 @@ This is like the previous example, but matches `Snapple` case insensitively usin
 package main
 
 import (
-	"fmt"
-	"github.com/tmikus/ahocorasick_rs"
+    "fmt"
+    "github.com/tmikus/ahocorasick_rs"
 )
 
 func main() {
-	patterns := []string{"apple", "maple", "snapple"}
-	haystack := "Nobody likes maple in their apple flavored Snapple."
-	ac := ahocorasick_rs.NewAhoCorasickBuilder().SetAsciiCaseInsensitive(true).Build(patterns)
-	defer ac.Close() // Close the AhoCorasick instance when done.
-	for _, match := range ac.FindAll(haystack) {
-		fmt.Println(match.PatternIndex, match.Start, match.End)
-	}
-	// Output: 
-	// 1, 13, 18 
-	// 0, 28, 33 
-	// 2, 43, 50
+    patterns := []string{"apple", "maple", "snapple"}
+    haystack := "Nobody likes maple in their apple flavored Snapple."
+    ac := ahocorasick_rs.NewAhoCorasickBuilder().SetAsciiCaseInsensitive(true).Build(patterns)
+    defer ac.Close() // Close the AhoCorasick instance when done.
+    for _, match := range ac.FindAll(haystack) {
+        fmt.Println(match.PatternIndex, match.Start, match.End)
+    }
+    // Output: 
+    // 1, 13, 18 
+    // 0, 28, 33 
+    // 2, 43, 50
 }
 ```
 
@@ -107,7 +109,7 @@ func main() {
     ac := ahocorasick_rs.NewAhoCorasick(patterns)
     defer ac.Close() // Close the AhoCorasick instance when done.
     match := ac.FindFirst(haystack)
-    fmt.Println(haystack[match.Start:match.End]) 
+    fmt.Println(haystack[match.Start:match.End])
     // Output: 
     // Sam
 }
@@ -131,7 +133,7 @@ func main() {
     ac := ahocorasick_rs.NewAhoCorasickBuilder().SetMatchKind(matchkind.LeftMostFirst).Build(patterns)
     defer ac.Close() // Close the AhoCorasick instance when done.
     match := ac.FindFirst(haystack)
-    fmt.Println(haystack[match.Start:match.End]) 
+    fmt.Println(haystack[match.Start:match.End])
     // Output: 
     // Samwise
 }
