@@ -54,9 +54,7 @@ func NewAhoCorasick(patterns []string) *AhoCorasick {
 		cPatterns[i] = C.CString(pattern)
 		defer C.free(unsafe.Pointer(cPatterns[i]))
 	}
-
 	automaton := C.create_automaton((**C.char)(&cPatterns[0]), C.size_t(len(patterns)))
-
 	return &AhoCorasick{
 		automaton: automaton,
 	}
@@ -73,8 +71,7 @@ func (ac *AhoCorasick) Close() {
 //
 // This is the infallible version of [AhoCorasick.TryFindIter].
 func (ac *AhoCorasick) FindAll(input string) []Match {
-	cText := C.CString(input)
-	defer C.free(unsafe.Pointer(cText))
+	cText := (*C.char)(unsafe.Pointer(unsafe.StringData(input)))
 	foundCount := C.long(0)
 	cMatches := C.find_iter(ac.automaton, cText, C.size_t(len(input)), &foundCount)
 	result := make([]Match, int(foundCount))
@@ -98,8 +95,7 @@ func (ac *AhoCorasick) FindAll(input string) []Match {
 //
 // This is the infallible version of [AhoCorasick.TryFind].
 func (ac *AhoCorasick) FindFirst(input string) *Match {
-	cText := C.CString(input)
-	defer C.free(unsafe.Pointer(cText))
+	cText := (*C.char)(unsafe.Pointer(unsafe.StringData(input)))
 	match := C.find(ac.automaton, cText, C.size_t(len(input)))
 	if match == nil {
 		return nil
@@ -133,9 +129,8 @@ func (ac *AhoCorasick) GetKind() ahocorasickkind.AhoCorasickKind {
 //
 // Note that there is no corresponding fallible routine for this method. If you need a fallible version of this,
 // then [AhoCorasick.TryFind] can be used with Input::earliest enabled.
-func (ac *AhoCorasick) IsMatch(text string) bool {
-	cText := C.CString(text)
-	defer C.free(unsafe.Pointer(cText))
-	isMatch := C.is_match(ac.automaton, cText, C.size_t(len(text)))
+func (ac *AhoCorasick) IsMatch(input string) bool {
+	cText := (*C.char)(unsafe.Pointer(unsafe.StringData(input)))
+	isMatch := C.is_match(ac.automaton, cText, C.size_t(len(input)))
 	return int(isMatch) != 0
 }
