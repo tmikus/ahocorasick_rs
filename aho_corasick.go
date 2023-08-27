@@ -14,7 +14,7 @@ import (
 	"unsafe"
 )
 
-// Match represents a match found by an AhoCorasick automaton.
+// Match represents a match found by an [AhoCorasick] automaton.
 type Match struct {
 	End          uint
 	PatternIndex uint
@@ -23,12 +23,12 @@ type Match struct {
 
 // AhoCorasick is an automaton for searching multiple strings in linear time.
 //
-// The AhoCorasick type supports a few basic ways of constructing an automaton, with the default being NewAhoCorasick.
-// However, there are a fair number of configurable options that can be set by using AhoCorasickBuilder instead.
+// The [AhoCorasick] type supports a few basic ways of constructing an automaton, with the default being [NewAhoCorasick].
+// However, there are a fair number of configurable options that can be set by using [AhoCorasickBuilder] instead.
 // Such options include, but are not limited to, how matches are determined, simple case insensitivity,
 // whether to use a DFA or not and various knobs for controlling the space-vs-time trade-offs taken when building the automaton.
 //
-// Make sure to call AhoCorasick.Close() when you are done with the automaton.
+// Make sure to call [AhoCorasick.Close] when you are done with the automaton.
 type AhoCorasick struct {
 	automaton *C.AhoCorasick
 }
@@ -36,12 +36,12 @@ type AhoCorasick struct {
 // NewAhoCorasick creates a new Aho-Corasick automaton using the default configuration.
 //
 // The default configuration optimizes for less space usage, but at the expense of longer search times.
-// To change the configuration, use AhoCorasickBuilder.
+// To change the configuration, use [AhoCorasickBuilder].
 //
-// This uses the default matchkind.Standard match semantics, which reports a match as soon as it is found.
+// This uses the default [matchkind.Standard] match semantics, which reports a match as soon as it is found.
 // This corresponds to the standard match semantics supported by textbook descriptions of the Aho-Corasick algorithm.
 //
-// Make sure to call AhoCorasick.Close() when you are done with the automaton.
+// Make sure to call [AhoCorasick.Close] when you are done with the automaton.
 func NewAhoCorasick(patterns []string) *AhoCorasick {
 	cPatterns := make([]*C.char, len(patterns))
 	for i, pattern := range patterns {
@@ -65,7 +65,7 @@ func (ac *AhoCorasick) Close() {
 //
 // input may be any type that is cheaply convertible to an Input. This includes, but is not limited to, &str and &[u8].
 //
-// This is the infallible version of AhoCorasick.TryFindIter.
+// This is the infallible version of [AhoCorasick.TryFindIter].
 func (ac *AhoCorasick) FindAll(input string) []Match {
 	cText := C.CString(input)
 	defer C.free(unsafe.Pointer(cText))
@@ -90,7 +90,7 @@ func (ac *AhoCorasick) FindAll(input string) []Match {
 //
 // input may be any type that is cheaply convertible to an Input. This includes, but is not limited to, &str and &[u8].
 //
-// This is the infallible version of AhoCorasick.TryFind.
+// This is the infallible version of [AhoCorasick.TryFind].
 func (ac *AhoCorasick) FindFirst(input string) *Match {
 	cText := C.CString(input)
 	defer C.free(unsafe.Pointer(cText))
@@ -110,12 +110,12 @@ func (ac *AhoCorasick) FindFirst(input string) *Match {
 //
 // Input may be any type that is cheaply convertible to an Input. This includes, but is not limited to, &str and &[u8].
 //
-// Aside from convenience, when AhoCorasick was built with leftmost-first or leftmost-longest semantics,
-// this might result in a search that visits less of the haystack than AhoCorasick.FindFirst would otherwise.
+// Aside from convenience, when [AhoCorasick] was built with leftmost-first or leftmost-longest semantics,
+// this might result in a search that visits less of the haystack than [AhoCorasick.FindFirst] would otherwise.
 // (For standard semantics, matches are always immediately returned once they are seen, so there is no way for this to do less work in that case.)
 //
 // Note that there is no corresponding fallible routine for this method. If you need a fallible version of this,
-// then AhoCorasick.TryFind can be used with Input::earliest enabled.
+// then [AhoCorasick.TryFind] can be used with Input::earliest enabled.
 func (ac *AhoCorasick) IsMatch(text string) bool {
 	cText := C.CString(text)
 	defer C.free(unsafe.Pointer(cText))
