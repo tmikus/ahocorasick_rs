@@ -3,6 +3,7 @@ package ahocorasick
 import (
 	_ "embed"
 	"fmt"
+	"github.com/tmikus/ahocorasick_rs/ahocorasickkind"
 	"github.com/tmikus/ahocorasick_rs/matchkind"
 	"testing"
 
@@ -76,6 +77,13 @@ func ExampleAhoCorasick_FindFirst_leftmost_longest() {
 	match := automaton.FindFirst(haystack)
 	fmt.Println(haystack[match.Start:match.End])
 	// Output: abcd
+}
+
+func ExampleAhoCorasick_GetKind() {
+	automaton := NewAhoCorasick([]string{"foo", "bar", "quux", "baz"})
+	defer automaton.Close()
+	fmt.Println(automaton.GetKind() == ahocorasickkind.DFA)
+	// Output: true
 }
 
 func ExampleAhoCorasick_IsMatch() {

@@ -166,6 +166,17 @@ pub extern "C" fn find_iter(
 }
 
 #[no_mangle]
+pub extern "C" fn get_kind(automaton: *const AhoCorasick) -> usize {
+    let automaton_ref = unsafe { &*automaton };
+    match automaton_ref.kind() {
+        AhoCorasickKind::NoncontiguousNFA => 1,
+        AhoCorasickKind::ContiguousNFA => 2,
+        AhoCorasickKind::DFA => 3,
+        _ => panic!("Invalid kind"),
+    }
+}
+
+#[no_mangle]
 pub extern "C" fn is_match(
     automaton: *const AhoCorasick,
     text: *const std::os::raw::c_char,

@@ -8,15 +8,15 @@ version = "1.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6748e8def348ed4d14996fa801f4122cd763fff530258cdc03f64b25f89d3a5a"
 dependencies = [
-    "memchr",
+ "memchr",
 ]
 
 [[package]]
 name = "ahocorasick_rs"
 version = "0.1.0"
 dependencies = [
-    "aho-corasick",
-    "libc",
+ "aho-corasick",
+ "libc",
 ]
 
 [[package]]

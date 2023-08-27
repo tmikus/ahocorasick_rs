@@ -47,6 +47,8 @@ AhoCorasickMatch* find_iter(
 
 void free_automaton(AhoCorasick* automaton);
 
+int get_kind(const AhoCorasick* automaton);
+
 int is_match(
     const AhoCorasick* automaton,
     const char* text,
