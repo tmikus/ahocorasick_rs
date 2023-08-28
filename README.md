@@ -16,8 +16,24 @@ https://pkg.go.dev/github.com/tmikus/ahocorasick_rs
 
 ## Installation
 
+To build this package, you will need to have Rust installed. The minimum supported version of Rust is 1.60.0.
+You can install Rust by following the instructions at https://www.rust-lang.org/tools/install.
+
+Once Rust is installed, you can install this package with:
 ```bash
-go get github.com/tmikus/ahocorasick_rs
+# Build the FFI bindings
+git clone git@github.com:tmikus/aho-corasick-ffi.git
+cargo build --release --manifest-path aho-corasick-ffi/Cargo.toml
+
+# Configure env variables for the Go build. This is necessary so that the Go linker can find the Rust library.
+export CGO_LDFLAGS="-L$(pwd)/aho-corasick-ffi/target/release"
+export LD_LIBRARY_PATH="$(pwd)/aho-corasick-ffi/target/release"
+
+# Install the Go package
+go get -t github.com/tmikus/ahocorasick_rs
+
+# Optional: Run the tests
+go test github.com/tmikus/ahocorasick_rs
 ```
 
 ## Example: basic searching
