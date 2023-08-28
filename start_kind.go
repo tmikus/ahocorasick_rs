@@ -1,4 +1,4 @@
-package startkind
+package ahocorasick
 
 // The kind of anchored starting configurations to support in an Aho-Corasick searcher.
 //
@@ -10,7 +10,7 @@ package startkind
 type StartKind int
 
 const (
-	Both       StartKind = 1 // Support both anchored and unanchored searches.
-	Unanchored StartKind = 2 // Support only unanchored searches. Requesting an anchored search will return an error in fallible APIs and panic in infallible APIs.
-	Anchored   StartKind = 3 // Support only anchored searches. Requesting an unanchored search will return an error in fallible APIs and panic in infallible APIs.
+	StartKindBoth       StartKind = 1 // Support both anchored and unanchored searches.
+	StartKindUnanchored StartKind = 2 // Support only unanchored searches. Requesting an anchored search will return an error in fallible APIs and panic in infallible APIs.
+	StartKindAnchored   StartKind = 3 // Support only anchored searches. Requesting an unanchored search will return an error in fallible APIs and panic in infallible APIs.
 )

@@ -11,9 +11,6 @@ package ahocorasick
 */
 import "C"
 import (
-	"github.com/tmikus/ahocorasick_rs/ahocorasickkind"
-	"github.com/tmikus/ahocorasick_rs/matchkind"
-	"github.com/tmikus/ahocorasick_rs/startkind"
 	"unsafe"
 )
 
@@ -22,10 +19,10 @@ type AhoCorasickBuilder struct {
 	asciiCaseInsensitive bool
 	byteClasses          bool
 	denseDepth           *uint
-	kind                 *ahocorasickkind.AhoCorasickKind
-	matchKind            matchkind.MatchKind
+	kind                 *AhoCorasickKind
+	matchKind            MatchKind
 	prefilter            bool
-	startKind            startkind.StartKind
+	startKind            StartKind
 }
 
 // NewAhoCorasickBuilder creates a new builder for configuring an [AhoCorasick] automaton.
@@ -37,9 +34,9 @@ func NewAhoCorasickBuilder() *AhoCorasickBuilder {
 		byteClasses:          true,
 		denseDepth:           nil,
 		kind:                 nil,
-		matchKind:            matchkind.Standard,
+		matchKind:            MatchKindStandard,
 		prefilter:            true,
-		startKind:            startkind.Unanchored,
+		startKind:            StartKindUnanchored,
 	}
 }
 
@@ -132,25 +129,25 @@ func (b *AhoCorasickBuilder) SetDenseDepth(denseDepth *uint) *AhoCorasickBuilder
 //
 // Currently, there are four choices:
 //
-// [ahocorasickkind.NonContinuousNFA] instructs the searcher to use a noncontinuous::NFA. A noncontinuous NFA
+// [ahocorasickkind.AhoCorasickKindNonContinuousNFA] instructs the searcher to use a noncontinuous::NFA. A noncontinuous NFA
 // is the fastest to be built, has moderate memory usage and is typically the slowest to execute a search.
 //
-// [ahocorasickkind.ContinuousNFA] instructs the searcher to use a contiguous::NFA. A contiguous NFA is a little slower
-// to build than a noncontinuous NFA, has excellent memory usage and is typically a little slower than a DFA for a search.
+// [ahocorasickkind.AhoCorasickKindContinuousNFA] instructs the searcher to use a contiguous::NFA. A contiguous NFA is a little slower
+// to build than a noncontinuous NFA, has excellent memory usage and is typically a little slower than a AhoCorasickKindDFA for a search.
 //
-// [ahocorasickkind.DFA] instructs the searcher to use a dfa::DFA. A DFA is very slow to build, uses exorbitant
+// [ahocorasickkind.AhoCorasickKindDFA] instructs the searcher to use a dfa::AhoCorasickKindDFA. A AhoCorasickKindDFA is very slow to build, uses exorbitant
 // amounts of memory, but will typically execute searches the fastest.
 //
 // nil (the default) instructs the searcher to choose the “best” Aho-Corasick implementation.
 // This choice is typically based primarily on the number of patterns.
 //
 // Setting this configuration does not change the time complexity for constructing the Aho-Corasick automaton
-// (which is O(p) where p is the total number of patterns being compiled). Setting this to [ahocorasickkind.DFA] does
+// (which is O(p) where p is the total number of patterns being compiled). Setting this to [ahocorasickkind.AhoCorasickKindDFA] does
 // however reduce the time complexity of non-overlapping searches from O(n + p) to O(n), where n is
 // the length of the haystack.
 //
 // In general, you should probably stick to the default unless you have some kind of reason to use a specific
-// Aho-Corasick implementation. For example, you might choose [ahocorasickkind.DFA] if you don’t care about memory
+// Aho-Corasick implementation. For example, you might choose [ahocorasickkind.AhoCorasickKindDFA] if you don’t care about memory
 // usage and want the fastest possible search times.
 //
 // Setting this guarantees that the searcher returned uses the chosen implementation. If that implementation could
@@ -160,18 +157,18 @@ func (b *AhoCorasickBuilder) SetDenseDepth(denseDepth *uint) *AhoCorasickBuilder
 // If nil is given, then one may use [AhoCorasick.GetKind] to determine which [AhoCorasick] implementation was chosen.
 //
 // Note that the heuristics used for choosing which [ahocorasickkind.AhoCorasickKind] may be changed in a semver compatible release.
-func (b *AhoCorasickBuilder) SetKind(kind *ahocorasickkind.AhoCorasickKind) *AhoCorasickBuilder {
+func (b *AhoCorasickBuilder) SetKind(kind *AhoCorasickKind) *AhoCorasickBuilder {
 	b.kind = kind
 	return b
 }
 
 // SetMatchKind sets the desired match semantics.
 //
-// The default is [matchkind.Standard], which corresponds to the match semantics supported by the standard textbook
+// The default is [matchkind.MatchKindStandard], which corresponds to the match semantics supported by the standard textbook
 // description of the Aho-Corasick algorithm. Namely, matches are reported as soon as they are found.
 // Moreover, this is the only way to get overlapping matches or do stream searching.
 //
-// The other kinds of match semantics that are supported are [matchkind.LeftMostFirst] and [matchkind.LeftMostLongest].
+// The other kinds of match semantics that are supported are [matchkind.MatchKindLeftMostFirst] and [matchkind.MatchKindLeftMostLongest].
 // The former corresponds to the match you would get if you were to try to match each pattern at each position
 // in the haystack in the same order that you give to the automaton. That is, it returns the leftmost match corresponding
 // to the earliest pattern given to the automaton. The latter corresponds to finding the longest possible match
@@ -179,10 +176,10 @@ func (b *AhoCorasickBuilder) SetKind(kind *ahocorasickkind.AhoCorasickKind) *Aho
 //
 // For more details on match semantics, see the documentation for MatchKind.
 //
-// Note that setting this to [matchkind.LeftMostFirst] or [matchkind.LeftMostLongest] will cause some search routines
+// Note that setting this to [matchkind.MatchKindLeftMostFirst] or [matchkind.MatchKindLeftMostLongest] will cause some search routines
 // on [AhoCorasick] to return an error (or panic if you’re using the infallible API). Notably, this includes
 // stream and overlapping searches.
-func (b *AhoCorasickBuilder) SetMatchKind(matchKind matchkind.MatchKind) *AhoCorasickBuilder {
+func (b *AhoCorasickBuilder) SetMatchKind(matchKind MatchKind) *AhoCorasickBuilder {
 	b.matchKind = matchKind
 	return b
 }
@@ -191,7 +188,7 @@ func (b *AhoCorasickBuilder) SetMatchKind(matchKind matchkind.MatchKind) *AhoCor
 //
 // When enabled, searching will attempt to quickly skip to match candidates using specialized literal search routines.
 // A prefilter cannot always be used, and is generally treated as a heuristic. It can be useful to disable this
-// if the prefilter is observed to be suboptimal for a particular workload.
+// if the prefilter is observed to be suoptimal for a particular workload.
 //
 // Currently, prefilters are typically only active when building searchers with a small (less than 100) number of patterns.
 //
@@ -205,24 +202,24 @@ func (b *AhoCorasickBuilder) SetPrefilter(prefilter bool) *AhoCorasickBuilder {
 //
 // Every Aho-Corasick automaton is capable of having two start states: one that is used for unanchored searches
 // and one that is used for anchored searches. Some automatons, like the NFAs, support this with almost zero additional cost.
-// Other automatons, like the DFA, require two copies of the underlying transition table to support both simultaneously.
+// Other automatons, like the AhoCorasickKindDFA, require two copies of the underlying transition table to support both simultaneously.
 //
 // Because there may be an added non-trivial cost to supporting both, it is possible to configure which starting
 // state configuration is needed.
 //
 // Indeed, since anchored searches tend to be somewhat more rare, only unanchored searches are supported by default.
-// Thus, [startkind.Unanchored] is the default.
+// Thus, [startkind.StartKindUnanchored] is the default.
 //
-// Note that when this is set to [startkind.Unanchored], then running an anchored search will result in an error
-// (or a panic if using the infallible APIs). Similarly, when this is set to [startkind.Anchored], then running
+// Note that when this is set to [startkind.StartKindUnanchored], then running an anchored search will result in an error
+// (or a panic if using the infallible APIs). Similarly, when this is set to [startkind.StartKindAnchored], then running
 // an unanchored search will result in an error (or a panic if using the infallible APIs).
-// When [startkind.Both] is used, then both unanchored and anchored searches are always supported.
+// When [startkind.StartKindBoth] is used, then both unanchored and anchored searches are always supported.
 //
 // Also note that even if an [AhoCorasick] searcher is using an NFA internally (which always supports both unanchored
 // and anchored searches), an error will still be reported for a search that isn’t supported by the configuration
 // set via this method. This means, for example, that an error is never dependent on which internal
 // implementation of [AhoCorasick] is used.
-func (b *AhoCorasickBuilder) SetStartKind(startKind startkind.StartKind) *AhoCorasickBuilder {
+func (b *AhoCorasickBuilder) SetStartKind(startKind StartKind) *AhoCorasickBuilder {
 	b.startKind = startKind
 	return b
 }

@@ -11,7 +11,7 @@ package ahocorasick
 */
 import "C"
 import (
-	"github.com/tmikus/ahocorasick_rs/ahocorasickkind"
+	"runtime"
 	"unsafe"
 )
 
@@ -32,9 +32,7 @@ type Match struct {
 // The [AhoCorasick] type supports a few basic ways of constructing an automaton, with the default being [NewAhoCorasick].
 // However, there are a fair number of configurable options that can be set by using [AhoCorasickBuilder] instead.
 // Such options include, but are not limited to, how matches are determined, simple case insensitivity,
-// whether to use a DFA or not and various knobs for controlling the space-vs-time trade-offs taken when building the automaton.
-//
-// Make sure to call [AhoCorasick.Close] when you are done with the automaton.
+// whether to use a AhoCorasickKindDFA or not and various knobs for controlling the space-vs-time trade-offs taken when building the automaton.
 type AhoCorasick struct {
 	automaton *C.AhoCorasick
 }
@@ -44,10 +42,8 @@ type AhoCorasick struct {
 // The default configuration optimizes for less space usage, but at the expense of longer search times.
 // To change the configuration, use [AhoCorasickBuilder].
 //
-// This uses the default [matchkind.Standard] match semantics, which reports a match as soon as it is found.
+// This uses the default [matchkind.MatchKindStandard] match semantics, which reports a match as soon as it is found.
 // This corresponds to the standard match semantics supported by textbook descriptions of the Aho-Corasick algorithm.
-//
-// Make sure to call [AhoCorasick.Close] when you are done with the automaton.
 func NewAhoCorasick(patterns []string) *AhoCorasick {
 	cPatterns := make([]*C.char, len(patterns))
 	for i, pattern := range patterns {
@@ -55,14 +51,13 @@ func NewAhoCorasick(patterns []string) *AhoCorasick {
 		defer C.free(unsafe.Pointer(cPatterns[i]))
 	}
 	automaton := C.create_automaton((**C.char)(&cPatterns[0]), C.size_t(len(patterns)))
-	return &AhoCorasick{
+	result := &AhoCorasick{
 		automaton: automaton,
 	}
-}
-
-// Close frees the memory associated with this automaton.
-func (ac *AhoCorasick) Close() {
-	C.free_automaton(ac.automaton)
+	runtime.SetFinalizer(result, func(c *AhoCorasick) {
+		C.free_automaton(c.automaton)
+	})
+	return result
 }
 
 // FindAll returns an iterator of non-overlapping matches, using the match semantics that this automaton was constructed with.
@@ -114,9 +109,9 @@ func (ac *AhoCorasick) FindFirst(input string) *Match {
 // was given to [AhoCorasickBuilder.SetKind], then one is automatically chosen and this routine will report which one.
 //
 // Note that the heuristics used for choosing which [ahocorasickkind.AhoCorasickKind] may be changed in a semver compatible release.
-func (ac *AhoCorasick) GetKind() ahocorasickkind.AhoCorasickKind {
+func (ac *AhoCorasick) GetKind() AhoCorasickKind {
 	kind := C.get_kind(ac.automaton)
-	return ahocorasickkind.AhoCorasickKind(kind)
+	return AhoCorasickKind(kind)
 }
 
 // IsMatch returns true if and only if this automaton matches the haystack at any position.

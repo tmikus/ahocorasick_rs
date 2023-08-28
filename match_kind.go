@@ -1,4 +1,4 @@
-package matchkind
+package ahocorasick
 
 // MatchKind is a knob for controlling the match semantics of an Aho-Corasick automaton.
 //
@@ -7,9 +7,9 @@ package matchkind
 // report only the leftmost non-overlapping matches. The leftmost approach is in turn split into two different ways of
 // resolving ambiguous matches: leftmost-first and leftmost-longest.
 //
-// The Standard match kind is the default and is the only one that supports overlapping matches and stream searching.
+// The MatchKindStandard match kind is the default and is the only one that supports overlapping matches and stream searching.
 // (Trying to find overlapping or streaming matches using leftmost match semantics will result in an error in fallible APIs and a panic when using infallibe APIs.)
-// The Standard match kind will report matches as they are seen. When searching for overlapping matches, then all possible matches are reported.
+// The MatchKindStandard match kind will report matches as they are seen. When searching for overlapping matches, then all possible matches are reported.
 // When searching for non-overlapping matches, the first match seen is reported. For example, for non-overlapping matches,
 // given the patterns abcd and b and the haystack abcdef, only a match for b is reported since it is detected first.
 // The abcd match is never reported since it overlaps with the b match.
@@ -52,7 +52,7 @@ package matchkind
 // POSIX and Perl-like regexes since Samwise is still longest match, but it also appears earlier than Sam.
 //
 // The “standard” match semantics of Aho-Corasick generally don’t correspond to the match semantics of any large
-// group of regex implementations, so there’s no direct analogy that can be made here. Standard match semantics are
+// group of regex implementations, so there’s no direct analogy that can be made here. MatchKindStandard match semantics are
 // generally useful for overlapping matches, or if you just want to see matches as they are detected.
 //
 // The main conclusion to draw from this section is that the match semantics can be tweaked to precisely match either
@@ -61,13 +61,13 @@ type MatchKind int
 
 const (
 	// Use standard match semantics, which support overlapping matches. When used with non-overlapping matches, matches are reported as they are seen.
-	Standard MatchKind = 1
+	MatchKindStandard MatchKind = 1
 	// Use leftmost-longest match semantics, which reports leftmost matches. When there are multiple possible leftmost matches, the longest match is chosen.
 	//
 	//This does not support overlapping matches or stream searching. If this match kind is used, attempting to find overlapping matches or stream matches will fail.
-	LeftMostLongest MatchKind = 2
+	MatchKindLeftMostLongest MatchKind = 2
 	// Use leftmost-first match semantics, which reports leftmost matches. When there are multiple possible leftmost matches, the match corresponding to the pattern that appeared earlier when constructing the automaton is reported.
 	//
 	//This does not support overlapping matches or stream searching. If this match kind is used, attempting to find overlapping matches or stream matches will fail.
-	LeftMostFirst MatchKind = 3
+	MatchKindLeftMostFirst MatchKind = 3
 )
