@@ -46,11 +46,16 @@ type AhoCorasick struct {
 // This corresponds to the standard match semantics supported by textbook descriptions of the Aho-Corasick algorithm.
 func NewAhoCorasick(patterns []string) *AhoCorasick {
 	cPatterns := make([]*C.char, len(patterns))
+	cLengths := make([]C.size_t, len(patterns))
 	for i, pattern := range patterns {
-		cPatterns[i] = C.CString(pattern)
-		defer C.free(unsafe.Pointer(cPatterns[i]))
+		cPatterns[i] = (*C.char)(unsafe.Pointer(unsafe.StringData(pattern)))
+		cLengths[i] = C.size_t(len(pattern))
 	}
-	automaton := C.create_automaton((**C.char)(&cPatterns[0]), C.size_t(len(patterns)))
+	automaton := C.create_automaton(
+		(**C.char)(&cPatterns[0]),
+		(*C.size_t)(&cLengths[0]),
+		C.size_t(len(patterns)),
+	)
 	result := &AhoCorasick{
 		automaton: automaton,
 	}
