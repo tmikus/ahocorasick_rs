@@ -45,10 +45,9 @@ func NewAhoCorasickBuilder() *AhoCorasickBuilder {
 // A builder may be reused to create more automatons.
 func (b *AhoCorasickBuilder) Build(patterns []string) *AhoCorasick {
 	cPatterns := make([]*C.char, len(patterns))
-	cLengths := make([]C.size_t, len(patterns))
 	for i, pattern := range patterns {
-		cPatterns[i] = (*C.char)(unsafe.Pointer(unsafe.StringData(pattern)))
-		cLengths[i] = C.size_t(len(pattern))
+		cPatterns[i] = C.CString(pattern)
+		defer C.free(unsafe.Pointer(cPatterns[i]))
 	}
 	options := C.AhoCorasickBuilderOptions{
 		ascii_case_insensitive: boolToCInt(b.asciiCaseInsensitive),
@@ -61,7 +60,6 @@ func (b *AhoCorasickBuilder) Build(patterns []string) *AhoCorasick {
 	}
 	automaton := C.build_automaton(
 		(**C.char)(&cPatterns[0]),
-		(*C.size_t)(&cLengths[0]),
 		C.size_t(len(patterns)),
 		(*C.AhoCorasickBuilderOptions)(unsafe.Pointer(&options)),
 	)
