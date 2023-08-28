@@ -88,6 +88,25 @@ func ExampleAhoCorasick_IsMatch() {
 	// false
 }
 
+func TestAhoCorasick(t *testing.T) {
+	Convey("GIVEN a list of 1000 patterns", t, func() {
+		patterns := make([]string, 1000)
+		for i := 0; i < 1000; i++ {
+			patterns[i] = fmt.Sprintf("pattern_%d", i)
+		}
+
+		Convey("WHEN a new AhoCorasick is created", func() {
+			automaton := NewAhoCorasick(patterns)
+
+			Convey("THEN the automaton should be able to match all patterns", func() {
+				for i := 0; i < 1000; i++ {
+					So(automaton.IsMatch(fmt.Sprintf("pattern_%d", i)), ShouldBeTrue)
+				}
+			})
+		})
+	})
+}
+
 //go:embed data/sherlock.txt
 var SHERLOCK string
 
