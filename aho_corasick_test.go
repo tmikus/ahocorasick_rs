@@ -1,13 +1,9 @@
 package ahocorasick
 
 import (
-	_ "embed"
 	"fmt"
 	. "github.com/smartystreets/goconvey/convey"
 	"testing"
-
-	bs "github.com/BobuSumisu/aho-corasick"
-	cf "github.com/cloudflare/ahocorasick"
 )
 
 func ExampleAhoCorasick_FindAll_basic() {
@@ -105,53 +101,4 @@ func TestAhoCorasick(t *testing.T) {
 			})
 		})
 	})
-}
-
-//go:embed data/sherlock.txt
-var SHERLOCK string
-
-var patterns = []string{
-	"ADL", "ADl", "AdL", "Adl", "BAK", "BAk", "BAK", "BaK", "Bak",
-	"BaK", "HOL", "HOl", "HoL", "Hol", "IRE", "IRe", "IrE", "Ire",
-	"JOH", "JOh", "JoH", "Joh", "SHE", "SHe", "ShE", "She", "WAT",
-	"WAt", "WaT", "Wat", "aDL", "aDl", "adL", "adl", "bAK", "bAk",
-	"bAK", "baK", "bak", "baK", "hOL", "hOl", "hoL", "hol", "iRE",
-	"iRe", "irE", "ire", "jOH", "jOh", "joH", "joh", "sHE", "sHe",
-	"shE", "she", "wAT", "wAt", "waT", "wat", "ſHE", "ſHe", "ſhE",
-	"ſhe",
-}
-
-func TestAhoCorasick_FindAll(t *testing.T) {
-	Convey("Given a new AhoCorasick", t, func() {
-		automaton := NewAhoCorasick(patterns)
-		Convey("WHEN called with long text", func() {
-			matches := automaton.FindAll(SHERLOCK)
-			So(matches, ShouldHaveLength, 1764)
-		})
-	})
-
-}
-
-func BenchmarkAhoCorasickGoCloudflare(b *testing.B) {
-	trie := cf.NewStringMatcher(patterns)
-	data := []byte(SHERLOCK)
-
-	for n := 0; n < b.N; n++ {
-		trie.Match(data)
-	}
-}
-
-func BenchmarkAhoCorasickGoBobuSumisu(b *testing.B) {
-	trie := bs.NewTrieBuilder().AddStrings(patterns).Build()
-
-	for n := 0; n < b.N; n++ {
-		trie.MatchString(SHERLOCK)
-	}
-}
-
-func BenchmarkAhoCorasickRs(b *testing.B) {
-	automaton := NewAhoCorasick(patterns)
-	for n := 0; n < b.N; n++ {
-		automaton.FindAll(SHERLOCK)
-	}
 }

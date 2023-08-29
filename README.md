@@ -53,7 +53,6 @@ func main() {
     patterns := []string{"apple", "maple", "Snapple"}
     haystack := "Nobody likes maple in their apple flavored Snapple."
     ac := ahocorasick_rs.NewAhoCorasick(patterns)
-    defer ac.Close() // Close the AhoCorasick instance when done.
     for _, match := range ac.FindAll(haystack) {
         fmt.Println(match.PatternIndex, match.Start, match.End)
     }
@@ -81,7 +80,6 @@ func main() {
     patterns := []string{"apple", "maple", "snapple"}
     haystack := "Nobody likes maple in their apple flavored Snapple."
     ac := ahocorasick_rs.NewAhoCorasickBuilder().SetAsciiCaseInsensitive(true).Build(patterns)
-    defer ac.Close() // Close the AhoCorasick instance when done.
     for _, match := range ac.FindAll(haystack) {
         fmt.Println(match.PatternIndex, match.Start, match.End)
     }
@@ -123,7 +121,6 @@ func main() {
     patterns := []string{"Samwise", "Sam"}
     haystack := "Samwise"
     ac := ahocorasick_rs.NewAhoCorasick(patterns)
-    defer ac.Close() // Close the AhoCorasick instance when done.
     match := ac.FindFirst(haystack)
     fmt.Println(haystack[match.Start:match.End])
     // Output: 
@@ -147,7 +144,6 @@ func main() {
     patterns := []string{"Samwise", "Sam"}
     haystack := "Samwise"
     ac := ahocorasick_rs.NewAhoCorasickBuilder().SetMatchKind(matchkind.LeftMostFirst).Build(patterns)
-    defer ac.Close() // Close the AhoCorasick instance when done.
     match := ac.FindFirst(haystack)
     fmt.Println(haystack[match.Start:match.End])
     // Output: 
@@ -161,7 +157,10 @@ expression alternation. See `MatchKind` in the docs for more details.
 
 ## Benchmarks
 
-The benchmark below was executed on Macbook Pro M1 Max using https://github.com/BobuSumisu/aho-corasick-benchmark
+The benchmark below was executed on Macbook Pro M1 Max using https://github.com/BobuSumisu/aho-corasick-benchmark.
+Please note, that the benchmark below sends a rather large input to the library, which might give an unfair advantage to my library.
+This is because this library uses CGO, which means that the input is copied from Go to Rust and back.
+This is not the case for the other libraries, and they all run natively in Go without paying the penalty of crossing the FFI boundary.
 
 ```
           name    patterns        build    search    matches       alloc
