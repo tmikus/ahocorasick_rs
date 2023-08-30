@@ -41,12 +41,21 @@ type AhoCorasick struct {
 // This uses the default [matchkind.MatchKindStandard] match semantics, which reports a match as soon as it is found.
 // This corresponds to the standard match semantics supported by textbook descriptions of the Aho-Corasick algorithm.
 func NewAhoCorasick(patterns []string) *AhoCorasick {
+	pinner := runtime.Pinner{}
 	cPatterns := make([]*C.char, len(patterns))
+	cLengths := make([]C.size_t, len(patterns))
 	for i, pattern := range patterns {
-		cPatterns[i] = C.CString(pattern)
-		defer C.free(unsafe.Pointer(cPatterns[i]))
+		data := unsafe.Pointer(&[]byte(pattern)[0])
+		pinner.Pin(data)
+		cPatterns[i] = (*C.char)(data)
+		cLengths[i] = C.size_t(len(pattern))
 	}
-	automaton := C.create_automaton((**C.char)(&cPatterns[0]), C.size_t(len(patterns)))
+	automaton := C.create_automaton(
+		(**C.char)(&cPatterns[0]),
+		(*C.size_t)(&cLengths[0]),
+		C.size_t(len(patterns)),
+	)
+	pinner.Unpin()
 	result := &AhoCorasick{
 		automaton: automaton,
 	}

@@ -23,12 +23,14 @@ typedef struct AhoCorasickMatch {
 
 AhoCorasick* build_automaton(
     const char** patterns,
+    size_t* pattern_lengths,
     size_t num_patterns,
     const AhoCorasickBuilderOptions* builder
 );
 
 AhoCorasick* create_automaton(
     const char** patterns,
+    size_t* pattern_lengths,
     size_t num_patterns
 );
 
