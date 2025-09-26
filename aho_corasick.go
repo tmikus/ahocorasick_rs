@@ -74,6 +74,7 @@ func (ac *AhoCorasick) FindAll(input string) []Match {
 	cText := (*C.char)(unsafe.Pointer(unsafe.StringData(input)))
 	foundCount := C.long(0)
 	cMatches := C.find_iter(ac.automaton, cText, C.size_t(len(input)), &foundCount)
+	runtime.KeepAlive(input)
 	result := make([]Match, int(foundCount))
 	if foundCount > 0 {
 		goSlice := (*[1 << 30]C.AhoCorasickMatch)(unsafe.Pointer(cMatches))[:foundCount:foundCount]
@@ -97,6 +98,7 @@ func (ac *AhoCorasick) FindAll(input string) []Match {
 func (ac *AhoCorasick) FindFirst(input string) *Match {
 	cText := (*C.char)(unsafe.Pointer(unsafe.StringData(input)))
 	match := C.find(ac.automaton, cText, C.size_t(len(input)))
+	runtime.KeepAlive(input)
 	if match == nil {
 		return nil
 	}
@@ -132,5 +134,6 @@ func (ac *AhoCorasick) GetKind() AhoCorasickKind {
 func (ac *AhoCorasick) IsMatch(input string) bool {
 	cText := (*C.char)(unsafe.Pointer(unsafe.StringData(input)))
 	isMatch := C.is_match(ac.automaton, cText, C.size_t(len(input)))
+	runtime.KeepAlive(input)
 	return int(isMatch) != 0
 }
