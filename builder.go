@@ -65,6 +65,10 @@ func (b *AhoCorasickBuilder) Build(patterns []string) *AhoCorasick {
 		C.size_t(len(patterns)),
 		(*C.AhoCorasickBuilderOptions)(unsafe.Pointer(&options)),
 	)
+	runtime.KeepAlive(patterns)
+	runtime.KeepAlive(cPatterns)
+	runtime.KeepAlive(cLengths)
+	runtime.KeepAlive(options)
 	pinner.Unpin()
 	return &AhoCorasick{
 		automaton: automaton,

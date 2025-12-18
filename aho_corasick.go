@@ -56,6 +56,9 @@ func NewAhoCorasick(patterns []string) *AhoCorasick {
 		C.size_t(len(patterns)),
 	)
 	pinner.Unpin()
+	runtime.KeepAlive(cPatterns)
+	runtime.KeepAlive(cLengths)
+	runtime.KeepAlive(patterns)
 	result := &AhoCorasick{
 		automaton: automaton,
 	}
@@ -74,6 +77,9 @@ func (ac *AhoCorasick) FindAll(input string) []Match {
 	cText := (*C.char)(unsafe.Pointer(unsafe.StringData(input)))
 	foundCount := C.long(0)
 	cMatches := C.find_iter(ac.automaton, cText, C.size_t(len(input)), &foundCount)
+	runtime.KeepAlive(cText)
+	runtime.KeepAlive(input)
+	runtime.KeepAlive(ac)
 	result := make([]Match, int(foundCount))
 	if foundCount > 0 {
 		goSlice := (*[1 << 30]C.AhoCorasickMatch)(unsafe.Pointer(cMatches))[:foundCount:foundCount]
@@ -97,6 +103,9 @@ func (ac *AhoCorasick) FindAll(input string) []Match {
 func (ac *AhoCorasick) FindFirst(input string) *Match {
 	cText := (*C.char)(unsafe.Pointer(unsafe.StringData(input)))
 	match := C.find(ac.automaton, cText, C.size_t(len(input)))
+	runtime.KeepAlive(cText)
+	runtime.KeepAlive(input)
+	runtime.KeepAlive(ac)
 	if match == nil {
 		return nil
 	}
@@ -116,6 +125,7 @@ func (ac *AhoCorasick) FindFirst(input string) *Match {
 // Note that the heuristics used for choosing which [ahocorasickkind.AhoCorasickKind] may be changed in a semver compatible release.
 func (ac *AhoCorasick) GetKind() AhoCorasickKind {
 	kind := C.get_kind(ac.automaton)
+	runtime.KeepAlive(ac)
 	return AhoCorasickKind(kind)
 }
 
@@ -132,5 +142,8 @@ func (ac *AhoCorasick) GetKind() AhoCorasickKind {
 func (ac *AhoCorasick) IsMatch(input string) bool {
 	cText := (*C.char)(unsafe.Pointer(unsafe.StringData(input)))
 	isMatch := C.is_match(ac.automaton, cText, C.size_t(len(input)))
+	runtime.KeepAlive(cText)
+	runtime.KeepAlive(input)
+	runtime.KeepAlive(ac)
 	return int(isMatch) != 0
 }
